@@ -1,0 +1,16 @@
+- model: Profile
+  rows:
+    - fist_name: "John"
+      middle_name: "Doe"
+      last_name: "Doe"
+      login: "login1"
+      primary_email: john1@smith.com
+      email: ["john1@smith1.com"]
+      biography: "An poor John"
+    - fist_name: "Jonh"
+      middle_name: "Doe"
+      last_name: "Smith"
+      login: "login2"
+      email: ["john2@doe1.com"]
+      primary_email: john2@doe.com
+      biography: "An poor Smith"
