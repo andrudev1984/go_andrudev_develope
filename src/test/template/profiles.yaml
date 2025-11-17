@@ -1,16 +1,35 @@
 - model: Profile
   rows:
-    - fist_name: "John"
+    - id: "e3a78ba3-9b64-4714-88ab-445750663a91"
+      fist_name: "John"
       middle_name: "Doe"
       last_name: "Doe"
       login: "login1"
       primary_email: john1@smith.com
       email: ["john1@smith1.com"]
       biography: "An poor John"
-    - fist_name: "Jonh"
+    - id: "e3a78ba3-9b64-4714-88ab-445750663a92"
+      fist_name: "Jonh"
       middle_name: "Doe"
       last_name: "Smith"
       login: "login2"
       email: ["john2@doe1.com"]
       primary_email: john2@doe.com
       biography: "An poor Smith"
+- model: Attachment
+  rows:
+    - id: "e3a78ba3-9b64-4714-88ab-445750663a91"
+      name: "Test file1"
+      description: "Test description 1"
+      private: true
+      title: "Test title1"
+      s3_key: "e3a78ba3-9b64-4714-88ab-445750663a91"
+      user_id: "e3a78ba3-9b64-4714-88ab-445750663a91"
+    - id: "e3a78ba3-9b64-4714-88ab-445750663a92"
+      name: "Test file2"
+      description: "Test description 2"
+      private: true
+      title: "Test title2"
+      s3_key: "e3a78ba3-9b64-4714-88ab-445750663a92"
+      user_id: "e3a78ba3-9b64-4714-88ab-445750663a92"
+
