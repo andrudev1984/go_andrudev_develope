@@ -19,7 +19,7 @@ type Profile struct {
 	PrimaryEmail string         `bun:"type:varchar(50),notnull,unique"`                     // Primary email, verified
 	Email        []string       `bun:"type:varchar(50)[],array,default:array[]::varchar[]"` // Additional emails
 	Phone        string         `bun:"type:varchar(50)"`
-	Tags         []string       `bun:"type:varchar(50),array,default:array[]::varchar[]"`
+	Tags         []string       `bun:"type:varchar(50)[],array,default:array[]::varchar[]"`
 	Biography    string         `bun:"type:text"`
 	Company      string         `bun:"type:varchar(100)"`
 	Location     string         `bun:"type:varchar(255)"`
@@ -34,10 +34,11 @@ type Attachment struct {
 	bun.BaseModel `bun:"table:users.attachments"`
 	common.NotModifiable
 	common.Nameable
-	Private bool      `bun:"type:boolean,default:true"`
-	Tags    []string  `bun:"type:tags,array"`
-	Title   string    `bun:"title,notnull"`
-	S3Key   uuid.UUID `bun:"type:uuid,notnull"`
-	UserID  uuid.UUID `bun:"type:uuid,notnull"`
-	Profile Profile   `bun:"rel:belongs-to,join:user_id=id"`
+	Private  bool           `bun:"type:boolean,default:true"`
+	Tags     []string       `bun:"type:varchar(50)[],array,default:array[]::varchar[]"`
+	Title    string         `bun:"type:varchar(255),notnull"`
+	S3Key    uuid.UUID      `bun:"type:uuid,notnull"`
+	UserID   uuid.UUID      `bun:"type:uuid,notnull"`
+	Metadata map[string]any `bun:"type:jsonb"` // Custom metadata
+	Profile  Profile        `bun:"rel:belongs-to,join:user_id=id"`
 }
