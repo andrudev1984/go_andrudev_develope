@@ -1,7 +1,7 @@
 package model
 
 import (
-	"cabinet/src/main/common"
+	"cabinet/src/main/model/common"
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
@@ -12,9 +12,9 @@ type Profile struct {
 	bun.BaseModel `bun:"table:users.profiles"`
 	common.Modifiable
 	Login        string         `bun:"type:varchar(50),notnull,unique"` // Login info
-	FistName     string         `bun:"type:varchar(100),notnull"`
-	MiddleName   string         `bun:"type:varchar(100),notnull"`
-	LastName     string         `bun:"type:varchar(100),notnull"`
+	FistName     string         `bun:"type:varchar(100),notnull,default:''"`
+	MiddleName   string         `bun:"type:varchar(100),notnull,default:''"`
+	LastName     string         `bun:"type:varchar(100),notnull,default:''"`
 	Private      bool           `bun:"type:boolean,default:true"`
 	PrimaryEmail string         `bun:"type:varchar(50),notnull,unique"`                     // Primary email, verified
 	Email        []string       `bun:"type:varchar(50)[],array,default:array[]::varchar[]"` // Additional emails
@@ -41,4 +41,16 @@ type Attachment struct {
 	UserID   uuid.UUID      `bun:"type:uuid,notnull"`
 	Metadata map[string]any `bun:"type:jsonb"` // Custom metadata
 	Profile  Profile        `bun:"rel:belongs-to,join:user_id=id"`
+}
+
+func (p *Profile) FullName() string {
+	return p.FistName + " " + p.MiddleName + " " + p.LastName
+}
+
+func (p *Profile) GetName() string {
+	return p.FullName()
+}
+
+func (p *Profile) GetDescription() string {
+	return ""
 }

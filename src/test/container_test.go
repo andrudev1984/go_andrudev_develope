@@ -4,7 +4,7 @@ import (
 	"cabinet/src/main/model"
 	"context"
 	"io"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"testing"
@@ -24,16 +24,15 @@ const MigrationsPath = "../main/migrations"
 func TestM(t *testing.T) {
 	ctx := context.Background()
 	pgt, err := postgrestest.Start(ctx)
-	if err != nil {
-		panic(err)
-	}
+
+	assert.NoError(t, err)
 
 	sqlDb, err := pgt.NewDatabase(ctx)
 
+	assert.NoError(t, err)
+	assert.NotNil(t, sqlDb)
+
 	err = sqlDb.Ping()
-	if err != nil {
-		panic(err)
-	}
 
 	bunDb := bun.NewDB(sqlDb, pgdialect.New())
 
@@ -54,30 +53,25 @@ func TestM(t *testing.T) {
 			file, err := os.Open(filepath.Join(MigrationsPath, d.Name()))
 			migration, err := io.ReadAll(file)
 
-			log.Println(string(migration))
+			slog.Info(string(migration))
 
-			if err != nil {
-				panic(err)
-			} else {
-				log.Printf("Reading migration... %s ok\n", d.Name())
-			}
+			assert.NoError(t, err)
+
+			slog.Info("Reading migration ok", slog.Any("name", d.Name()))
 
 			_, err = sqlDb.Exec(string(migration))
-			if err != nil {
-				panic(err)
-			} else {
-				log.Printf("Loading migration... %s ok\n", d.Name())
-			}
+
+			assert.NoError(t, err)
+
+			slog.Info("Loading migration ok", slog.Any("name", d.Name()))
 		}
 
 		fixture := dbfixture.New(bunDb, dbfixture.WithTruncateTables())
 		err = fixture.Load(ctx, os.DirFS("./template"), "profiles.yaml")
 
-		if err != nil {
-			panic(err)
-		} else {
-			log.Println("Loading templates... ok")
-		}
+		assert.NoError(t, err)
+
+		slog.Info("Loading templates ... ok")
 	})
 
 	t.Run("Get profiles", func(t *testing.T) {
@@ -85,15 +79,13 @@ func TestM(t *testing.T) {
 
 		err = bunDb.NewSelect().Model(&profiles).Scan(ctx)
 
-		if err != nil {
-			panic(err)
-		}
+		assert.NoError(t, err)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, profiles)
 		assert.Equal(t, len(profiles), 2)
 
-		log.Println("Select profiles... ok")
+		slog.Info("Select profiles... ok")
 	})
 
 	t.Run("Get attachments", func(t *testing.T) {
@@ -101,19 +93,37 @@ func TestM(t *testing.T) {
 
 		err = bunDb.NewSelect().Model(&aAttachments).Scan(ctx)
 
-		if err != nil {
-			panic(err)
-		}
+		assert.NoError(t, err)
 
 		assert.Equal(t, 2, len(aAttachments))
 
-		log.Println("Select attachments... ok")
+		slog.Info("Select attachments... ok")
 	})
 
 	t.Run("Operate profile", func(t *testing.T) {
 		var profiles []model.Profile
 
+		err = bunDb.NewSelect().Model(&profiles).Scan(ctx)
+
 		var profile = prepareProfileEntity()
+		profile.Login = profiles[0].Login
+
+		_, err = bunDb.NewInsert().Model(profile).Exec(ctx)
+
+		assert.Error(t, err)
+
+		slog.Error(err.Error())
+
+		profile.Login = profiles[0].Login + "new"
+		profile.PrimaryEmail = profiles[0].PrimaryEmail
+
+		_, err = bunDb.NewInsert().Model(profile).Exec(ctx)
+
+		assert.Error(t, err)
+
+		slog.Error(err.Error())
+
+		profile.PrimaryEmail = profiles[0].PrimaryEmail + "New"
 
 		_, err = bunDb.NewInsert().Model(profile).Exec(ctx)
 
@@ -121,9 +131,7 @@ func TestM(t *testing.T) {
 
 		err = bunDb.NewSelect().Model(&profiles).Scan(ctx)
 
-		if err != nil {
-			panic(err)
-		}
+		assert.NoError(t, err)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, profiles)
@@ -137,25 +145,19 @@ func TestM(t *testing.T) {
 
 		_, err = bunDb.NewUpdate().Model(profile).Where("id = ?", profiles[2].ID).Exec(ctx)
 
-		if err != nil {
-			panic(err)
-		}
+		assert.NoError(t, err)
 
 		_, err = bunDb.NewDelete().Model(profile).Where("id = ?", profiles[2].ID).Exec(ctx)
 
-		if err != nil {
-			panic(err)
-		}
+		assert.NoError(t, err)
 
 		err = bunDb.NewSelect().Model(&profiles).Scan(ctx)
 
-		if err != nil {
-			panic(err)
-		}
+		assert.NoError(t, err)
 
 		assert.Equal(t, len(profiles), 2)
 
-		log.Println("Operating new profile... ok")
+		slog.Info("Operating new profile... ok")
 	})
 
 	t.Run("Operate attachments", func(t *testing.T) {
@@ -172,7 +174,7 @@ func TestM(t *testing.T) {
 
 		assert.Error(t, err)
 
-		log.Println(err)
+		slog.Error(err.Error())
 
 		attachment.UserID = profiles[0].ID
 
@@ -203,7 +205,7 @@ func TestM(t *testing.T) {
 
 		assert.NoError(t, err)
 
-		log.Println("Operating new attachment... ok")
+		slog.Info("Operating new attachment... ok")
 
 	})
 

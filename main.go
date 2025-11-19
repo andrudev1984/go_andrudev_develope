@@ -3,7 +3,7 @@ package main
 import (
 	"cabinet/src/main/model"
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,6 +49,6 @@ func main() {
 	pJson, _ := json.Marshal(p)
 	aJson, _ := json.Marshal(a)
 
-	fmt.Println(string(pJson))
-	fmt.Println(string(aJson))
+	slog.Info(string(pJson))
+	slog.Info(string(aJson))
 }

@@ -13,9 +13,21 @@ type Identifiable struct {
 	ID uuid.UUID `bun:"type:uuid,default:uuid_generate_v4(),pk"`
 }
 
+func (i Identifiable) GetId() uuid.UUID {
+	return i.ID
+}
+
 type Nameable struct {
 	Name        string `bun:"type:varchar(255),notnull"`
 	Description string `bun:"type:text,default:''"`
+}
+
+func (i Nameable) GetName() string {
+	return i.Name
+}
+
+func (i Nameable) GetDescription() string {
+	return i.Description
 }
 
 type NotModifiable struct {
@@ -31,7 +43,7 @@ type Modifiable struct {
 var _ bun.BeforeAppendModelHook = (*NotModifiable)(nil)
 var _ bun.BeforeAppendModelHook = (*Modifiable)(nil)
 
-func (i *NotModifiable) BeforeAppendModel(ctx context.Context, query schema.Query) error {
+func (i *NotModifiable) BeforeAppendModel(_ context.Context, query schema.Query) error {
 	switch query.(type) {
 	case *bun.InsertQuery:
 		i.Created = time.Now().UTC()
@@ -39,7 +51,7 @@ func (i *NotModifiable) BeforeAppendModel(ctx context.Context, query schema.Quer
 	return nil
 }
 
-func (m *Modifiable) BeforeAppendModel(ctx context.Context, query schema.Query) error {
+func (m *Modifiable) BeforeAppendModel(_ context.Context, query schema.Query) error {
 	switch query.(type) {
 	case *bun.InsertQuery:
 		m.Created = time.Now().UTC()

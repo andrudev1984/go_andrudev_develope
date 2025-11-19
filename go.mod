@@ -3,6 +3,7 @@ module cabinet
 go 1.25.3
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.10-0.20241116184759-b7ffbd3b47da
 	github.com/stapelberg/postgrestest v0.0.0-20250114201530-c4d5c90e782b
